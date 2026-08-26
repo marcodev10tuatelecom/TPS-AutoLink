@@ -49,6 +49,7 @@ Rust 1.98.0 toolchain explicitly rather than accepting the image's preinstalled 
 
 ## Evidence boundary
 
-These sources establish toolchain/CI facts only. They do not prove that the TPS AutoLink
-workspace compiles. Compilation remains `NOT_EXECUTED` until actual Rust CI or a verified local
-Rust 1.98.0 environment runs the gate commands.
+These primary sources establish toolchain/CI facts. Actual TPS AutoLink compilation and test
+proof is recorded separately in `docs/AUTO-00-EVIDENCE.md`. Canonical GitHub Actions run
+`33000440273` executed Rust 1.98.0 and passed format, check, Clippy with warnings denied, seven
+unit tests, release build and simulator self-test.

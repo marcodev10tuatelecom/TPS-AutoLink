@@ -573,8 +573,8 @@ A head unit obtém conectividade WAN funcional através do telefone no método a
 - teste DNS;
 - teste TCP/QUIC/HTTP conforme necessário;
 - detecção de perda;
-- metering/roaming quando a plataforma fornecer;
-- telemetria básica.
+- recuperação;
+- métricas.
 
 ### Critério de saída
 
@@ -582,7 +582,7 @@ Head unit acessa endpoint de teste através da conectividade fornecida pelo tele
 
 ---
 
-## AUTO-05 — Controle bidirecional
+## AUTO-05 — Canal de aplicação bidirecional
 
 ### Objetivo
 
@@ -590,16 +590,17 @@ Telefone e head unit trocam comandos e eventos de aplicação.
 
 ### Deve entregar
 
-- mensagens command/event;
-- request ID;
-- acknowledgment;
-- timeout;
-- duplicate handling;
-- invalid command handling.
+- framing;
+- request/response;
+- eventos;
+- erros;
+- timeouts;
+- correlação;
+- testes de mensagens inválidas.
 
 ### Critério de saída
 
-Comandos aprovados percorrem as duas direções com confirmação e erros controlados.
+Comandos e eventos trafegam de ponta a ponta, com erros e timeouts tratados.
 
 ---
 
@@ -611,135 +612,130 @@ Reproduzir áudio controlado na head unit sem depender ainda do serviço de rád
 
 ### Deve entregar
 
-- pipeline local;
+- pipeline de áudio;
+- play/pause/stop;
+- volume conforme API permitida;
+- seleção de fonte;
+- tratamento de erro;
+- sincronização básica.
+
+### Critério de saída
+
+Arquivo local aprovado toca na head unit de referência com comandos funcionais.
+
+---
+
+## AUTO-07 — Rádio/streaming via Internet
+
+### Objetivo
+
+Consumir stream de rádio/áudio aprovado através da conectividade do telefone.
+
+### Deve entregar
+
+- cliente de stream;
+- buffering;
+- reconexão;
+- métricas;
+- timeout;
+- erro de origem;
+- codec mínimo aprovado.
+
+### Critério de saída
+
+Stream aprovado toca, recupera falha transitória e registra métricas.
+
+---
+
+## AUTO-08 — Comandos de mídia
+
+### Objetivo
+
+Controlar mídia por UI/eventos do TPS AutoLink.
+
+### Deve entregar
+
 - play;
 - pause;
 - stop;
-- volume lógico;
-- metadados básicos;
-- teste de underrun;
-- telemetria de startup.
+- next/previous quando aplicável;
+- volume quando aplicável;
+- estado atual;
+- feedback.
 
 ### Critério de saída
 
-Áudio local reproduz continuamente conforme critérios definidos sem crash e com métricas.
+Comandos aprovados alteram o estado da mídia e o estado é refletido corretamente.
 
 ---
 
-## AUTO-07 — Rádio/streaming Internet
+## AUTO-09 — Recuperação de conexão
 
 ### Objetivo
 
-Reproduzir stream real através da conectividade fornecida pelo telefone.
+Recuperar automaticamente perda transitória de conectividade.
 
 ### Deve entregar
 
-- source URL controlada;
-- connect;
-- buffering;
-- playback;
-- error handling;
-- reconnection;
-- metadata quando disponível;
-- medição de startup.
-
-### Critério de saída
-
-Stream real inicia, reproduz, reconecta e gera evidência mensurável.
-
----
-
-## AUTO-08 — Controles de mídia
-
-### Objetivo
-
-Completar controles necessários de uso automotivo.
-
-### Deve entregar
-
-- play;
-- pause;
-- previous/next quando aplicável;
-- favorites;
-- source select;
-- volume control dentro da camada permitida;
-- metadata display;
-- command debouncing.
-
-### Critério de saída
-
-Todos os controles v1 aprovados operam e têm teste automatizado ou evidência física.
-
----
-
-## AUTO-09 — Perda e recuperação de conexão
-
-### Objetivo
-
-O sistema deve sobreviver a interrupções previsíveis.
-
-### Deve entregar
-
-- loss detection;
-- reconnect policy;
+- detecção de perda;
 - backoff;
-- state restoration;
-- duplicate suppression;
-- session recovery quando aprovado;
-- métricas de gap.
+- retry;
+- limites;
+- recuperação de sessão;
+- métricas;
+- estado de erro permanente.
 
 ### Critério de saída
 
-Cenários aprovados de interrupção não causam crash e recuperam dentro dos limites definidos.
+Falha transitória aprovada é recuperada sem intervenção manual e falha permanente não gera loop infinito.
 
 ---
 
-## AUTO-10 — Cache
+## AUTO-10 — Cache local controlado
 
 ### Objetivo
 
-Criar cache local controlado para continuidade de mídia e redução de dependência da rede.
+Implementar cache local limitado e governado.
 
 ### Deve entregar
 
-- cache key;
-- integrity;
+- política de cache;
+- quota;
 - TTL;
-- size limit;
-- eviction;
-- hit/miss;
-- corruption handling;
-- live-content policy;
-- storage policy.
+- invalidação;
+- integridade;
+- limpeza;
+- métrica;
+- comportamento offline limitado.
 
 ### Critério de saída
 
-Cache funciona nos cenários aprovados sem mascarar incorretamente o estado de conteúdo ao vivo.
+Cache aprovado respeita quota, TTL, invalidação e integridade.
 
 ---
 
-## AUTO-11 — Handover de rede
+## AUTO-11 — Handover de conectividade
 
 ### Objetivo
 
-Suportar mudança entre caminhos de conectividade aprovados sem quebrar a aplicação.
+Alterar entre caminhos de conectividade aprovados preservando comportamento da aplicação quando possível.
 
 ### Deve entregar
 
-- network observer;
-- path quality;
-- transition handling;
-- stream recovery;
-- metrics;
-- tests with simulated degradation.
+- detecção de caminho;
+- prioridade;
+- mudança controlada;
+- reconexão;
+- métrica;
+- teste Wi-Fi ↔ celular conforme suporte real.
 
 ### Critério de saída
 
-Mudanças suportadas de conectividade recuperam ou mantêm a sessão dentro dos limites definidos.
+Mudança de caminho aprovada ocorre sem corrupção de estado e com recuperação dentro do limite definido.
 
 ---
 
-## AUTO-12 — Interface touchscreen
+## AUTO-12 — UI touchscreen
 
 ### Objetivo
 
@@ -747,176 +743,192 @@ Entregar UI funcional de referência na head unit.
 
 ### Deve entregar
 
-- home;
-- media selection;
-- now playing;
+- tela principal;
 - status;
-- connection status;
-- safe interaction model;
-- parked/moving policy quando houver sinal de estado confiável;
-- accessibility básica definida.
+- mídia;
+- conectividade;
+- erros;
+- navegação mínima;
+- acessibilidade básica;
+- input touchscreen.
 
 ### Critério de saída
 
-Fluxo principal é utilizável na tela de referência e não interfere nos gates anteriores.
+Fluxos aprovados são executáveis pela UI da head unit de referência.
 
 ---
 
-## AUTO-13 — Android Auto
+## AUTO-13 — Android Auto / Android Automotive
 
 ### Objetivo
 
-Integrar o produto ao Android Auto exclusivamente dentro das APIs e categorias oficialmente permitidas.
-
-### Regra
-
-Se uma função desejada não for permitida pela plataforma, ela não será emulada por meios não autorizados.
-
-### Critério de saída
-
-Integração aceita no escopo técnico oficial selecionado e testada em ambiente compatível.
-
----
-
-## AUTO-14 — Android Automotive OS
-
-### Objetivo
-
-Executar/integrar o TPS AutoLink em ambiente AAOS compatível.
-
-### Critério de saída
-
-Aplicação executa e oferece o subconjunto aprovado de funções em ambiente AAOS de referência.
-
----
-
-## AUTO-15 — iPhone
-
-### Objetivo
-
-Entregar integração iPhone para o TPS AutoLink próprio.
+Integrar apenas APIs e fluxos oficialmente permitidos.
 
 ### Deve entregar
 
-- camada nativa necessária;
-- TPS Rust Core reutilizado quando aplicável;
-- pairing/session;
-- connectivity path permitido;
-- media control permitido.
+- análise oficial atual;
+- requisitos de distribuição;
+- permissões;
+- API surface permitida;
+- adaptador separado do core;
+- testes suportados.
 
 ### Critério de saída
+
+Integração autorizada funciona dentro das regras oficiais aplicáveis.
+
+### Regra especial
+
+Se integração exigir aprovação externa não obtida:
+
+```text
+EXTERNAL_DEPENDENCY
+```
+
+Não falsificar suporte.
+
+---
+
+## AUTO-14 — iPhone / TPS AutoLink
+
+### Objetivo
 
 iPhone se comunica com a head unit pelo TPS AutoLink próprio no escopo aprovado.
 
+### Deve entregar
+
+- app/adaptador Apple;
+- discovery permitido;
+- sessão;
+- conectividade;
+- comandos suportados;
+- testes.
+
+### Critério de saída
+
+Comunicação própria aprovada funciona no hardware Apple de referência.
+
 ---
 
-## AUTO-16 — CarPlay / MFi
+## AUTO-15 — CarPlay / MFi
 
 ### Objetivo
 
-Executar somente integrações oficialmente permitidas/licenciadas.
+Investigar e integrar somente por canais oficiais e licenciados.
 
-### Regra de bloqueio
+### Deve entregar
 
-Se credencial, licença, hardware, entitlement ou aprovação oficial for necessária e não estiver disponível:
+- requisitos oficiais;
+- processo de adesão aplicável;
+- arquitetura de adaptador;
+- isolamento do core;
+- estado da dependência externa.
+
+### Critério de saída
+
+Somente `PASS` se autorização, hardware e requisitos oficiais permitirem execução real.
+
+Caso contrário:
 
 ```text
-AUTO-16 = EXTERNAL_DEPENDENCY_BLOCKED
+EXTERNAL_DEPENDENCY_NOT_SATISFIED
 ```
 
-Isso **não autoriza emulação não licenciada**.
-
-O usuário decide se:
-
-- obtém a dependência;
-- redefine formalmente o critério de release;
-- adia o gate para versão futura.
-
-O LLM não toma essa decisão sozinho.
+Sem emulação não autorizada.
 
 ---
 
-## AUTO-17 — Segurança, carga, soak e resiliência
+## AUTO-16 — Segurança, robustez e fuzzing
 
 ### Objetivo
 
-Certificar tecnicamente a plataforma antes do teste veicular final.
+Tornar o sistema resistente a entradas inválidas e condições hostis.
 
-### Deve incluir, conforme aplicável
+### Deve entregar
 
-- unit tests;
-- integration tests;
-- protocol tests;
-- fuzzing;
-- malformed frames;
-- replay attempts;
-- authentication failures;
-- reconnect storms;
-- network loss;
-- latency;
-- jitter;
-- packet loss;
-- resource limits;
-- memory use;
-- CPU;
-- long-running soak;
-- log integrity;
-- crash recovery;
+- fuzzing de parsers;
+- testes de malformed input;
+- limites;
+- rate limiting onde aplicável;
+- resource exhaustion tests;
+- testes de reconnect;
+- verificação de logs sensíveis;
+- revisão de unsafe/FFI;
 - dependency audit;
-- unsafe/FFI review;
-- release build.
+- threat-model atualizado.
 
 ### Critério de saída
 
-Nenhum blocker aberto e requisitos de qualidade aprovados atendidos.
+Zero vulnerabilidade crítica conhecida aberta no escopo testado e critérios de robustez aprovados.
 
 ---
 
-## AUTO-18 — Teste veicular controlado e produção
+## AUTO-17 — Carga, soak e resiliência
 
 ### Objetivo
 
-Validar fisicamente o TPS AutoLink no ambiente automotivo autorizado e congelar a release v1.0.0.
+Comprovar operação sustentada.
 
-### Deve incluir
+### Deve entregar
 
-- checklist pré-teste;
-- hardware identificado;
-- software versionado;
-- hashes;
-- condições do teste;
-- conexão;
+- soak test;
+- carga;
+- memória;
+- CPU;
+- rede;
+- reconexões;
+- falhas induzidas;
+- recuperação;
+- métricas.
+
+### Critério de saída
+
+Sistema opera pelo período e carga aprovados sem falha crítica, leak não controlado ou degradação fora do limite.
+
+---
+
+## AUTO-18 — Veículo e release candidate
+
+### Objetivo
+
+Executar validação física controlada e certificar a release v1.0.0.
+
+### Deve entregar
+
+- teste de bancada final;
+- teste em veículo controlado;
+- power cycle;
+- suspensão/retorno quando aplicável;
+- perda de telefone;
+- retorno do telefone;
+- perda de WAN;
+- recuperação;
 - áudio;
-- controles;
-- reconnect;
-- cache;
-- handover aplicável;
-- temperatura;
-- CPU/RAM;
+- UI;
 - logs;
-- incidentes;
+- release artifact;
+- checksums;
+- SBOM;
+- as-built;
+- known issues;
 - rollback;
-- resultado;
-- as-built.
+- critérios de produção.
 
 ### Critério de saída
 
 ```text
-ALL_REQUIRED_GATES = PASS
-NO_OPEN_BLOCKER = TRUE
-PHYSICAL_TEST = PASS
-SECURITY_GATE = PASS
-AS_BUILT_COMPLETE = TRUE
-RELEASE_ARTIFACTS_HASHED = TRUE
-v1.0.0 = FROZEN
+ALL_MANDATORY_TESTS = PASS
+CRITICAL_BLOCKERS = 0
+HIGH_BLOCKERS = 0
 PRODUCTION_READY = TRUE
+RELEASE = v1.0.0
 ```
 
 ---
 
-# 10. MÁQUINA DE ESTADOS
+# 10. MÁQUINA DE ESTADOS DOS GATES
 
-Cada gate só pode estar em um destes estados:
+Estados permitidos:
 
 ```text
 NOT_STARTED
@@ -928,7 +940,7 @@ PASS
 FROZEN
 ```
 
-## 10.1 Transições permitidas
+Transições permitidas:
 
 ```text
 NOT_STARTED -> READY
@@ -939,108 +951,49 @@ IN_PROGRESS -> PASS
 BLOCKED -> IN_PROGRESS
 FAILED -> IN_PROGRESS
 PASS -> FROZEN
-FROZEN -> somente reabertura formal autorizada
+FROZEN -> <NEXT_GATE_READY>
 ```
 
-## 10.2 Transições proibidas
+Proibido:
 
 ```text
 NOT_STARTED -> PASS
-BLOCKED -> PASS sem evidência
-FAILED -> FROZEN
-FROZEN -> IN_PROGRESS por iniciativa do LLM
+READY -> PASS
+BLOCKED -> PASS
+FAILED -> PASS
+FROZEN -> IN_PROGRESS
 ```
+
+salvo Change Control formal.
 
 ---
 
-# 11. UM ÚNICO GATE ATIVO
+# 11. POLÍTICA DE UM ÚNICO GATE ATIVO
 
 Em qualquer instante:
 
 ```text
-COUNT(ACTIVE_GATE) = 1
+ACTIVE_GATE_COUNT = 1
 ```
 
-Nunca dois.
-
-Uma subtarefa de outro gate não se torna ativa porque parece conveniente.
-
-## 11.1 Regra de pergunta obrigatória
-
-Para toda nova ação:
+Nunca:
 
 ```text
-DOES_THIS_DIRECTLY_ADVANCE_ACTIVE_GATE?
+AUTO-03 = IN_PROGRESS
+AUTO-04 = IN_PROGRESS
 ```
 
-Resultados:
+simultaneamente.
 
-```text
-YES -> EXECUTE
-NO  -> CLASSIFY
-```
+Pode existir preparação documental de gate futuro somente quando:
+
+- explicitamente autorizada;
+- não consome implementação;
+- não interrompe o gate atual.
 
 ---
 
-# 12. CLASSIFICAÇÃO OBRIGATÓRIA DE QUALQUER DESCOBERTA
-
-Toda lacuna, bug, ideia, dependência, oportunidade ou problema novo deve entrar exatamente em uma categoria.
-
-## A. BLOCKER
-
-Definição:
-
-Impede objetivamente o critério de saída do gate ativo.
-
-Ação:
-
-```text
-RESOLVE_NOW
-```
-
-## B. NON_BLOCKING
-
-Definição:
-
-Importante, mas não impede o gate.
-
-Ação:
-
-```text
-REGISTER
-CONTINUE_ACTIVE_GATE
-```
-
-## C. FUTURE_GATE
-
-Definição:
-
-Pertence claramente a gate posterior.
-
-Ação:
-
-```text
-REGISTER_IN_TARGET_GATE
-DO_NOT_EXECUTE_NOW
-```
-
-## D. OUT_OF_SCOPE
-
-Definição:
-
-Não pertence à versão 1.0.0 ou ao produto aprovado.
-
-Ação:
-
-```text
-IGNORE_FOR_V1
-```
-
-É proibido inventar categoria intermediária para justificar ramificação.
-
----
-
-# 13. BRANCH BUDGET
+# 12. BRANCH BUDGET
 
 ```text
 BRANCH_BUDGET = 0
@@ -1048,404 +1001,351 @@ BRANCH_BUDGET = 0
 
 Significa:
 
-Não manter arquiteturas alternativas simultaneamente.
+- não criar roadmap paralelo;
+- não criar subtarefas ilimitadas;
+- não criar “fase alternativa”;
+- não iniciar rewrite paralelo;
+- não inventar arquitetura B enquanto A ainda não falhou.
 
-## 13.1 Exceção controlada
-
-Uma análise de alternativas só pode ser aberta quando:
-
-1. decisão é necessária para o gate ativo;
-2. alternativas são mutuamente exclusivas;
-3. evidência atual não permite escolha direta.
-
-Nesse caso:
-
-```text
-COMPARE
-MEASURE
-DECIDE
-FREEZE
-DELETE_ALTERNATIVE_PATH
-CONTINUE
-```
-
-Não manter:
-
-```text
-Option A em produção
-Option B "para talvez"
-Option C experimental
-```
-
-sem autorização.
+Branches Git normais para desenvolvimento **não** são o mesmo conceito, mas ainda devem ser usadas de forma controlada.
 
 ---
 
-# 14. REGRA DE DECISÃO CONGELADA
+# 13. CLASSIFICAÇÃO OBRIGATÓRIA DE DESCOBERTAS
 
-Uma decisão marcada `FROZEN` não pode ser reaberta apenas porque apareceu uma solução mais interessante.
+Toda descoberta nova deve receber **uma e apenas uma** classificação:
 
-Pode ser reaberta somente com:
+```text
+BLOCKER
+NON_BLOCKING
+FUTURE_GATE
+OUT_OF_SCOPE
+```
+
+## 13.1 BLOCKER
+
+Somente quando impede critério obrigatório do gate ativo.
+
+Formato:
+
+```text
+BLOCKER-ID:
+GATE:
+DESCRIPTION:
+EVIDENCE:
+EXIT_CRITERION_IMPACT:
+MINIMUM_FIX:
+VERIFICATION:
+OWNER:
+STATUS:
+```
+
+## 13.2 NON_BLOCKING
+
+Problema real, porém não impede saída do gate.
+
+Deve ser registrado e o gate continua.
+
+## 13.3 FUTURE_GATE
+
+Pertence explicitamente a gate posterior.
+
+Não implementar agora.
+
+## 13.4 OUT_OF_SCOPE
+
+Não pertence à versão 1.0.0.
+
+Não implementar.
+
+---
+
+# 14. POLÍTICA DE BLOQUEIO
+
+Um blocker só é válido quando existir:
+
+```text
+MANDATORY_EXIT_CRITERION
++
+PROVEN_IMPEDIMENT
+```
+
+Curiosidade não é blocker.
+
+Melhoria não é blocker.
+
+Preferência estética não é blocker.
+
+“Seria bom ter” não é blocker.
+
+---
+
+# 15. POLÍTICA DE EVIDÊNCIA
+
+Toda afirmação técnica relevante deve ser classificada internamente como:
+
+```text
+PROVEN
+INFERRED
+UNKNOWN
+NOT_PROVEN
+```
+
+## 15.1 PROVEN
+
+Existe evidência reproduzível.
+
+Exemplos:
+
+- comando + output;
+- teste automatizado;
+- log;
+- captura;
+- hash;
+- documentação primária;
+- medição física.
+
+## 15.2 INFERRED
+
+Inferência razoável, porém não certificável.
+
+Nunca usar `INFERRED` como `PASS`.
+
+## 15.3 UNKNOWN
+
+Informação ainda não conhecida.
+
+Estado legítimo.
+
+## 15.4 NOT_PROVEN
+
+Foi sugerido ou alegado, mas não existe evidência suficiente.
+
+Nunca preencher lacuna com imaginação.
+
+---
+
+# 16. REGRA FAIL-CLOSED
+
+Quando informação obrigatória estiver ausente:
+
+```text
+UNKNOWN
+```
+
+Quando teste obrigatório não tiver sido executado:
+
+```text
+NOT_EXECUTED
+```
+
+Quando evidência for insuficiente:
+
+```text
+NOT_PROVEN
+```
+
+Não usar:
+
+```text
+"provavelmente funciona"
+"deve funcionar"
+"parece correto"
+```
+
+como conclusão de gate.
+
+---
+
+# 17. POLÍTICA DE DECISÕES CONGELADAS
+
+Uma decisão `FROZEN` só pode ser reaberta por:
 
 ```text
 FAILURE_EVIDENCE
 SECURITY_EVIDENCE
-COMPLIANCE_EVIDENCE
-REQUIREMENT_CHANGE
+COMPLIANCE_REQUIREMENT
+HARDWARE_INCOMPATIBILITY
+USER_REQUIREMENT_CHANGE
 USER_AUTHORIZATION
 ```
 
-## 14.1 Argumentos inválidos para reabertura
+Não reabrir porque surgiu uma tecnologia mais interessante.
 
-- “há uma biblioteca mais moderna”;
-- “vi uma arquitetura melhor”;
-- “outra empresa faz diferente”;
-- “poderíamos aproveitar para...”;
-- “talvez escale melhor no futuro”;
-- “é elegante”;
-- “é tendência”.
+Formato:
+
+```text
+DECISION-ID:
+DATE:
+GATE:
+QUESTION:
+OPTIONS_CONSIDERED:
+DECISION:
+REASON:
+EVIDENCE:
+STATUS: FROZEN
+REOPEN_CONDITIONS:
+```
 
 ---
 
-# 15. DECISÕES CONGELADAS INICIAIS
-
-As seguintes decisões estão congeladas para início do projeto:
+# 18. DECISÕES INICIAIS CONGELADAS
 
 ```text
-FD-001: TPS AutoLink é produto próprio, não clone de CarPlay.
-FD-002: núcleo autoral novo é Rust-first.
-FD-003: Rust-first não significa Rust-only.
-FD-004: smartphone fornece WAN/conectividade na arquitetura inicial.
+FD-001: o produto é próprio; não é clone do CarPlay.
+FD-002: o núcleo autoral novo é Rust-first.
+FD-003: smartphone fornece WAN.
+FD-004: transportes podem incluir USB/Wi-Fi/BLE conforme gate e suporte.
 FD-005: head unit Linux de referência é o alvo inicial de bancada.
-FD-006: BLE pode ser usado para descoberta/controle leve quando apropriado.
-FD-007: canal de dados principal deve usar transporte adequado a volume/latência, não depender de BLE.
-FD-008: integrações Android Auto/AAOS/Apple são adaptadores, não núcleo.
-FD-009: CarPlay/MFi só por caminho oficial/licenciado.
-FD-010: v1.0.0 é infotainment; funções safety-critical de veículo ficam fora.
-FD-011: um gate ativo por vez.
-FD-012: roadmap AUTO-00→AUTO-18 é canônico.
-FD-013: nenhum novo gate sem autorização explícita do usuário.
-FD-014: produção v1.0.0 antecede aprimoramentos e novas versões.
-FD-015: dívida técnica não bloqueante não interrompe gate.
-FD-016: sem evidência suficiente, estado = UNKNOWN/NOT_PROVEN.
-FD-017: código final deve ser testado antes de ser apresentado como produção.
-FD-018: FFI/unsafe devem permanecer confinados e auditáveis.
+FD-006: integrações Android/Apple são adaptadores, não o core.
+FD-007: CarPlay/MFi somente oficialmente.
+FD-008: sem bypass de DRM/proteções/licenciamento.
+FD-009: funções safety-critical ficam fora da v1.0.0.
+FD-010: um gate por vez.
+FD-011: produção antes de melhorias.
+FD-012: branch budget operacional é zero.
+FD-013: descobertas não bloqueantes não interrompem o gate.
+FD-014: código não é DONE sem evidência.
+FD-015: simulator PASS não equivale a physical PASS.
+FD-016: unsafe/FFI devem ser confinados e auditáveis.
+FD-017: versão 1.0.0 é a primeira meta operacional.
+FD-018: nenhuma nova feature antes de AUTO-18 PASS sem autorização.
 ```
 
 ---
 
-# 16. POLÍTICA DE LACUNAS E `IF/ELSE`
+# 19. POLÍTICA DE DÍVIDA TÉCNICA
 
-Projetos grandes contêm milhares de condições.
+Dívida técnica deve ser registrada quando:
 
-O objetivo não é eliminar IF/ELSE.
-
-O objetivo é impedir que IF/ELSE criem novos projetos.
-
-## 16.1 Regra
-
-Ao descobrir:
-
-```text
-IF condição X
-ELSE condição Y
-```
-
-o LLM deve perguntar:
-
-```text
-AMBOS precisam ser resolvidos agora para aprovar o gate?
-```
-
-Se não:
-
-- resolver apenas o ramo atual necessário;
-- registrar o outro ramo;
-- continuar.
-
-## 16.2 Proibição
-
-É proibido transformar cada combinação de:
-
-```text
-OS
-device
-network
-vendor
-codec
-car
-radio
-screen
-transport
-```
-
-em um subprojeto antes que haja necessidade comprovada.
-
----
-
-# 17. DEBT LEDGER
-
-Dívida técnica existe para impedir que melhorias opcionais interrompam o roadmap.
+- solução correta porém provisória foi usada;
+- limitação é conhecida;
+- melhoria não é necessária para o gate atual;
+- refatoração pode ser adiada sem comprometer segurança ou corretude obrigatória.
 
 Formato:
 
 ```text
 DEBT-ID:
-DISCOVERED_IN:
+GATE_DISCOVERED:
 DESCRIPTION:
-CLASSIFICATION:
-WHY_NOT_BLOCKING:
-TARGET_VERSION:
+WHY_NOT_NOW:
+RISK:
+TARGET_GATE_OR_POST_PRODUCTION:
 STATUS:
 ```
 
-Exemplo:
-
-```text
-DEBT-001
-DISCOVERED_IN: AUTO-01
-DESCRIPTION: avaliar UWB para descoberta de proximidade
-CLASSIFICATION: FUTURE
-WHY_NOT_BLOCKING: BLE discovery atende o critério v1
-TARGET_VERSION: POST-v1
-STATUS: DEFERRED
-```
-
-## 17.1 Regra
-
-```text
-DEBT != BLOCKER
-```
-
-Somente evidência objetiva pode promover uma dívida para blocker.
+A existência de dívida técnica **não autoriza** interromper o roadmap.
 
 ---
 
-# 18. POLÍTICA DE PESQUISA
+# 20. POLÍTICA DE CÓDIGO
 
-Pesquisa só é permitida quando necessária para:
+## 20.1 Requisitos mínimos
 
-- verificar fato material;
-- resolver blocker;
-- confirmar API/standard;
-- escolher dependência do gate ativo;
-- validar requisito de plataforma;
-- confirmar segurança/compliance.
+Todo código novo deve, quando aplicável:
 
-Pesquisa não deve virar exploração aberta.
+- compilar sem erro;
+- passar `rustfmt`;
+- passar `clippy` sem warnings aprovados;
+- possuir testes;
+- possuir tratamento explícito de erro;
+- evitar `unwrap()` em caminhos de produção sem justificativa;
+- evitar panic como controle de fluxo;
+- validar input;
+- possuir limites de recursos;
+- possuir logging adequado;
+- não registrar segredo;
+- ser determinístico onde necessário.
 
-## 18.1 Stop condition
+## 20.2 Entrega de scripts
 
-Pesquisa termina quando houver evidência suficiente para tomar a decisão necessária do gate.
+Nenhum script operacional deve ser entregue como tentativa.
 
-Não continuar “para ver se existe algo ainda melhor”.
+Antes de entrega:
+
+- sintaxe;
+- análise estática disponível;
+- fluxo feliz;
+- falhas previsíveis;
+- idempotência quando aplicável;
+- rollback quando houver mutação relevante;
+- evidência.
 
 ---
 
-# 19. POLÍTICA DE CÓDIGO
+# 21. POLÍTICA DE TESTE
 
-Nenhum código deve ser apresentado como final sem validação compatível com sua função.
+Toda feature deve ter teste proporcional ao risco.
 
-## 19.1 Mínimo Rust
-
-Quando aplicável:
+Categorias:
 
 ```text
-cargo fmt --check
-cargo check --workspace --all-targets
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-targets
-cargo build --workspace --release
+UNIT
+INTEGRATION
+PROTOCOL
+NEGATIVE
+FAULT_INJECTION
+SECURITY
+LOAD
+SOAK
+PHYSICAL
+REGRESSION
 ```
 
-A linha exata pode ser adaptada quando uma feature/target impossibilitar o comando global, mas a exceção deve ser documentada.
+Não são todos obrigatórios em todo gate.
 
-## 19.2 Testes adicionais
+São obrigatórios quando diretamente relacionados ao critério de saída.
 
-Conforme o módulo:
+---
 
-- unit tests;
-- integration tests;
-- negative tests;
-- malformed input;
-- fuzzing;
-- property tests;
-- concurrency tests;
-- reconnect;
+# 22. POLÍTICA DE TESTE NEGATIVO
+
+Não basta provar que funciona.
+
+Quando aplicável, provar que rejeita:
+
+- versão inválida;
+- mensagem truncada;
+- payload excessivo;
+- peer incorreto;
 - timeout;
-- resource exhaustion;
-- compatibility;
-- migration;
-- rollback.
-
-## 19.3 Proibição de “tentativa”
-
-Não usar linguagem como:
-
-```text
-"deve funcionar"
-"provavelmente"
-"tente este código"
-```
-
-quando o artefato é apresentado como produção.
-
-Se algo não foi executado/testado:
-
-```text
-NOT_EXECUTED
-NOT_PROVEN
-```
+- conexão interrompida;
+- input malformado;
+- sequência inválida;
+- recurso indisponível.
 
 ---
 
-# 20. POLÍTICA DE EVIDÊNCIA
+# 23. POLÍTICA DE OBSERVABILIDADE
 
-Toda afirmação de `PASS` deve ter evidência.
+Todo componente importante deve produzir sinais suficientes para diagnóstico.
 
-Tipos aceitos:
+Preferência:
 
 ```text
-BUILD_LOG
-TEST_LOG
-HASH
-BENCHMARK
-PACKET_CAPTURE
-METRIC
-SCREENSHOT
-DEVICE_LOG
-PHYSICAL_TEST
-OFFICIAL_SPEC
-REPRODUCIBLE_COMMAND
+timestamp
+component
+session/request id
+severity
+event code
+message
+relevant non-secret context
 ```
 
-## 20.1 Evidência mínima de release
+Nunca logar:
 
-Cada artefato de release deve possuir:
-
-- nome;
-- versão;
-- commit;
-- build target;
-- build command;
-- timestamp;
-- SHA-256;
-- testes vinculados;
-- resultado.
+- private keys;
+- tokens;
+- senhas;
+- secrets completos;
+- dados pessoais desnecessários.
 
 ---
 
-# 21. POLÍTICA DE BLOQUEIO
+# 24. POLÍTICA DE DEPENDÊNCIAS
 
-Um blocker precisa responder:
-
-```text
-WHAT:
-WHY:
-EVIDENCE:
-WHICH_EXIT_CRITERION_FAILS:
-MINIMUM_FIX:
-HOW_TO_VERIFY:
-```
-
-Sem isso, não pode ser usado para expandir escopo.
-
-## 21.1 Bloqueio externo
-
-Dependência externa como:
-
-- licença;
-- conta;
-- certificado;
-- entitlement;
-- hardware;
-- API do fabricante;
-
-deve ser marcada:
-
-```text
-EXTERNAL_DEPENDENCY
-```
-
-O LLM não deve substituí-la por workaround não autorizado.
-
----
-
-# 22. POLÍTICA DE SEGURANÇA
-
-## 22.1 Segurança por padrão
-
-- autenticação antes de operações privilegiadas;
-- trust explícito;
-- least privilege;
-- segredos fora do código;
-- chaves não logadas;
-- inputs não confiáveis validados;
-- versões de protocolo verificadas;
-- replay considerado;
-- mensagens malformadas rejeitadas;
-- logs sem segredos;
-- dependências auditadas;
-- updates assinados quando este mecanismo entrar no escopo.
-
-## 22.2 Criptografia
-
-Não inventar algoritmo criptográfico próprio.
-
-Primitivas devem vir de implementações consolidadas e apropriadas ao caso.
-
----
-
-# 23. POLÍTICA DE TELEMETRIA
-
-Toda otimização deve ser guiada por medição.
-
-Métricas possíveis:
-
-```text
-startup_ms
-rtt_ms
-jitter_ms
-packet_loss_pct
-reconnect_ms
-handover_ms
-audio_gap_ms
-buffer_ms
-cache_hit_pct
-cache_miss_pct
-throughput
-cpu_pct
-ram_bytes
-temperature
-battery_impact
-session_failures
-```
-
-Não transformar percepção subjetiva em fato técnico.
-
----
-
-# 24. POLÍTICA DE PERFORMANCE
-
-Nenhuma otimização prematura.
-
-Processo:
-
-```text
-REQUIREMENT
-MEASURE
-IDENTIFY BOTTLENECK
-OPTIMIZE
-REMEASURE
-```
-
-Não reescrever módulo por hipótese de performance.
-
----
-
-# 25. POLÍTICA DE DEPENDÊNCIAS
-
-Adicionar dependência somente se:
+Antes de adicionar dependência nova, verificar:
 
 1. resolve requisito do gate;
 2. manutenção é aceitável;
@@ -1524,270 +1424,214 @@ Nunca declarar `PHYSICAL_PASS` com base em simulação.
 Teste físico deve registrar:
 
 - hardware exato;
-- firmware/OS;
-- software version;
-- commit;
-- hashes;
-- topologia;
-- rede;
+- versão de OS;
+- alimentação;
+- interfaces usadas;
+- distância/ambiente quando rádio;
 - passos;
-- resultados;
+- timestamps;
 - logs;
-- falhas;
-- condições ambientais relevantes.
+- resultado;
+- falhas observadas;
+- evidência visual quando necessária.
 
 ---
 
-# 30. PROTOCOLO DE RESPOSTA DO LLM
+# 30. POLÍTICA DE PRODUÇÃO
 
-## 30.1 Antes de agir
-
-O LLM deve verificar:
+`PRODUCTION_READY = TRUE` somente quando:
 
 ```text
-1. Qual é o ACTIVE_GATE?
-2. Qual o EXIT_CRITERIA?
-3. O pedido atual pertence ao gate?
-4. Há blocker?
-5. Estou prestes a criar nova ramificação?
-6. Estou reabrindo FROZEN?
-7. Estou resolvendo problema futuro?
-8. Há uma menor ação suficiente?
-```
-
-## 30.2 Se houver ambiguidade
-
-Se for possível executar com segurança uma escolha canônica já definida:
-
-```text
-USE_CANONICAL_DECISION
-```
-
-Se faltar informação não bloqueante:
-
-```text
-MARK_UNKNOWN
-CONTINUE
-```
-
-Se faltar informação que impede o gate:
-
-```text
-BLOCKER
-```
-
-Não inventar.
-
-## 30.3 Formato de abertura
-
-Para tarefas técnicas relevantes:
-
-```text
-PROJECT: TPS AutoLink
-ACTIVE_GATE: AUTO-XX
-TARGET: <objetivo do gate>
-SCOPE: AUTO-XX ONLY
-BLOCKERS: <n>
-```
-
-## 30.4 Formato de encerramento
-
-```text
-PROJECT:
-ACTIVE_GATE:
-STATUS:
-PROVEN:
-PENDING:
-BLOCKERS:
-NON_BLOCKING:
-FROZEN:
-ARTIFACTS:
-NEXT_EXACT_ACTION:
+AUTO-00..AUTO-18 = PASS/FROZEN conforme aplicável
+AND
+MANDATORY_TESTS = PASS
+AND
+CRITICAL_BLOCKERS = 0
+AND
+HIGH_BLOCKERS = 0
+AND
+SECURITY_GATE = PASS
+AND
+PHYSICAL_VALIDATION = PASS
+AND
+ROLLBACK = PROVEN
+AND
+ARTIFACTS = HASHED
+AND
+AS_BUILT = COMPLETE
 ```
 
 ---
 
-# 31. PROIBIÇÕES ESPECÍFICAS AO LLM
+# 31. POLÍTICA DE RELEASE
 
-É proibido ao LLM:
-
-1. criar novo gate sem autorização;
-2. alterar roadmap por iniciativa própria;
-3. iniciar implementação de gate futuro;
-4. reabrir decisão congelada sem motivo válido;
-5. criar arquitetura paralela para “comparar depois”;
-6. multiplicar versões;
-7. antecipar v2;
-8. transformar melhoria em blocker;
-9. afirmar teste físico que não ocorreu;
-10. afirmar build/test que não executou;
-11. esconder `UNKNOWN`;
-12. preencher lacuna técnica por invenção;
-13. usar “boas práticas” genéricas contra requisito aprovado sem evidência;
-14. substituir produto próprio por plataforma de terceiro;
-15. fazer reverse engineering não autorizado para contornar licenciamento;
-16. expandir para sistemas safety-critical;
-17. gerar grandes refatorações sem necessidade do gate;
-18. propor mudança de linguagem sem evidência;
-19. iniciar discussão de contratação/equipe quando não for requisito do gate;
-20. continuar pesquisa após decisão suficiente;
-21. adicionar tecnologia porque é moderna;
-22. adicionar redundância sem requisito;
-23. otimizar sem medição;
-24. confundir dívida técnica com blocker;
-25. confundir simulação com certificação física;
-26. declarar produção antes do AUTO-18.
-
----
-
-# 32. REGRA DE MENOR MUDANÇA SUFICIENTE
-
-Quando existir falha:
+Toda release deve possuir:
 
 ```text
-IDENTIFY_ROOT_CAUSE
-APPLY_MINIMUM_CORRECT_FIX
-TEST
-CERTIFY
-CONTINUE
-```
-
-Não usar uma falha pequena como justificativa para reconstruir módulos adjacentes.
-
-Clean-room/rewrite só se a evidência mostrar que a arquitetura aprovada não consegue cumprir requisito ou se o usuário autorizar.
-
----
-
-# 33. REGRA DE CONCLUSÃO
-
-Quando o critério de saída do gate estiver atendido:
-
-```text
-PASS
-FREEZE
-NEXT_GATE
-```
-
-É proibido:
-
-```text
-PASS
-BUT_WHILE_WE_ARE_HERE...
+VERSION
+GIT_COMMIT
+BUILD_ID
+BUILD_TIMESTAMP
+TARGET
+RUST_VERSION
+DEPENDENCY_LOCK
+SBOM
+ARTIFACT_SHA256
+TEST_REPORT
+KNOWN_ISSUES
+ROLLBACK_INFO
 ```
 
 ---
 
-# 34. DEFINIÇÃO DE DONE
+# 32. POLÍTICA DE BACKLOG
 
-Um item está `DONE` somente se:
+Backlog não é fila de execução imediata.
+
+Formato:
 
 ```text
-IMPLEMENTED
-+
-TESTED
-+
-EVIDENCED
-+
-DOCUMENTED
-+
-EXIT_CRITERION_MET
+BACKLOG-ID:
+DISCOVERED_AT_GATE:
+CLASSIFICATION:
+DESCRIPTION:
+WHY_NOT_NOW:
+TARGET:
 ```
 
-Código escrito não equivale a `DONE`.
+Backlog deve ser consultado apenas:
+
+- quando o gate alvo chegar;
+- após produção;
+- quando blocker justificar reclassificação.
 
 ---
 
-# 35. DEFINIÇÃO DE PRODUCTION READY
+# 33. POLÍTICA DE PESQUISA
+
+Pesquisa é permitida somente quando resolve uma decisão real do gate ativo.
+
+Pergunta obrigatória antes de pesquisar:
 
 ```text
-PRODUCTION_READY =
-    AUTO-00 PASS
-AND AUTO-01 PASS
-AND AUTO-02 PASS
-AND AUTO-03 PASS
-AND AUTO-04 PASS
-AND AUTO-05 PASS
-AND AUTO-06 PASS
-AND AUTO-07 PASS
-AND AUTO-08 PASS
-AND AUTO-09 PASS
-AND AUTO-10 PASS
-AND AUTO-11 PASS
-AND AUTO-12 PASS
-AND REQUIRED_PLATFORM_GATES_RESOLVED
-AND AUTO-17 PASS
-AND AUTO-18 PASS
-AND NO_BLOCKERS
-AND RELEASE_FROZEN
+Qual decisão concreta esta pesquisa destrava?
 ```
 
-A forma de tratar gates externos opcionais/condicionais, como integrações que dependam de licença, deve ser decidida formalmente pelo usuário antes da release. O LLM não os remove sozinho.
+Se nenhuma:
+
+```text
+DO_NOT_RESEARCH_NOW
+```
 
 ---
 
-# 36. CHANGE CONTROL
+# 34. POLÍTICA DE DOCUMENTAÇÃO EXTERNA
 
-Qualquer alteração em:
+Ordem de autoridade técnica:
 
-- missão;
+1. padrão/especificação oficial;
+2. documentação oficial do fabricante/projeto;
+3. código-fonte upstream;
+4. issue/bug tracker upstream;
+5. pesquisa técnica reconhecida;
+6. teste próprio;
+7. documentação comunitária;
+8. opinião.
+
+Para comportamento crítico, evitar depender apenas de fonte terciária.
+
+---
+
+# 35. POLÍTICA DE SEGURANÇA
+
+Security by design desde o primeiro gate.
+
+Princípios:
+
+- least privilege;
+- authenticated peers;
+- explicit trust establishment;
+- secure defaults;
+- fail closed;
+- input validation;
+- rate limits;
+- bounded allocations;
+- minimal attack surface;
+- no secret logging;
+- key rotation/revocation quando aplicável;
+- dependency auditing;
+- reproducible evidence.
+
+---
+
+# 36. POLÍTICA DE PRIVACIDADE
+
+Coletar apenas dados necessários.
+
+Classificar:
+
+```text
+PUBLIC
+INTERNAL
+SENSITIVE
+SECRET
+PERSONAL
+```
+
+Telemetria deve evitar dados pessoais desnecessários.
+
+---
+
+# 37. POLÍTICA DE MUDANÇA
+
+Toda mudança que afete:
+
 - roadmap;
 - gate;
-- arquitetura canônica;
-- linguagem padrão;
-- limites de segurança;
+- arquitetura congelada;
+- protocolo incompatível;
+- segurança;
+- hardware de referência;
+- requisito funcional;
 - critério de produção;
 
-deve gerar um registro:
+deve possuir Change Control.
+
+Formato:
 
 ```text
 CHANGE-ID:
 DATE:
-REQUESTED_BY:
-OLD:
-NEW:
+REQUESTOR:
+CURRENT_STATE:
+REQUESTED_CHANGE:
 REASON:
 IMPACT:
-APPROVED:
-```
-
-Sem `APPROVED = USER`, a mudança não entra em vigor.
-
----
-
-# 37. REGISTRO DE DECISÕES
-
-Formato:
-
-```text
-DECISION-ID:
-DATE:
-GATE:
-QUESTION:
-OPTIONS:
-EVIDENCE:
+RISKS:
+TEST_IMPACT:
+DOC_IMPACT:
 DECISION:
-REASON:
-STATUS: FROZEN
-REOPEN_CONDITIONS:
+APPROVED_BY:
 ```
 
 ---
 
-# 38. REGISTRO DE BLOCKERS
+# 38. POLÍTICA DE HANDOFF ENTRE SESSÕES
 
-Formato:
+Antes de terminar sessão, registrar:
 
 ```text
-BLOCKER-ID:
-GATE:
-DESCRIPTION:
-EVIDENCE:
-EXIT_CRITERION_IMPACT:
-MINIMUM_FIX:
-VERIFICATION:
-OWNER:
-STATUS:
+ACTIVE_GATE
+GATE_STATUS
+LAST_PROVEN_STATE
+OPEN_BLOCKERS
+NON_BLOCKING_FINDINGS
+ARTIFACTS
+LAST_COMMIT
+NEXT_EXACT_ACTION
 ```
+
+Uma nova sessão deve continuar desse estado.
 
 ---
 
@@ -1821,13 +1665,14 @@ CONTROL_DOCUMENT_VERSION: 1.0.0
 PHASE: IMPLEMENTATION
 
 ACTIVE_GATE: AUTO-01
-GATE_STATUS: READY
+GATE_STATUS: IN_PROGRESS
 
 GATE_OBJECTIVE:
   Establish controlled discovery between the approved reference phone
   and the approved reference head unit.
 
-BLOCKERS: []
+BLOCKERS:
+  - AUTO01-B001
 
 NON_BLOCKING: []
 
@@ -1868,9 +1713,12 @@ CURRENT_ARTIFACTS:
   - docs/AUTO-00-EVIDENCE.md
   - docs/AUTO-00-SOURCES.md
   - docs/decisions/AUTO-00.md
+  - docs/hardware/REFERENCE-HARDWARE.md
+  - docs/AUTO-01-EVIDENCE.md
+  - docs/state-transitions/AUTO-01-START.md
 
 NEXT_EXACT_ACTION:
-  Register the approved reference phone/head-unit hardware matrix required before AUTO-01 implementation.
+  Supply and approve the exact reference phone and head-unit hardware matrix, then implement AUTO-01 discovery.
 
 PRODUCTION_READY: false
 ```
@@ -1925,510 +1773,498 @@ tps-autolink/
 └── docs/
 ```
 
-Não criar cópias divergentes do arquivo em múltiplas pastas.
-
-Se um resumo for necessário, ele deve apontar para este arquivo, não substituí-lo.
-
 ---
 
-# 43. POLÍTICA DE USO COM CHATGPT/LLM
+# 43. POLÍTICA DE STATUS
 
-Em uma nova conversa, fornecer este arquivo ou disponibilizá-lo por integração com o repositório.
-
-A instrução mínima deve ser:
+Os únicos status canônicos são:
 
 ```text
-Leia TPS-AUTOLINK-PROJECT-CONTROL.md integralmente.
-Ele é a autoridade operacional desta sessão.
-Não altere roadmap, gate ativo, frozen decisions ou escopo sem minha autorização.
-Execute somente o gate ativo.
-Ao encontrar uma nova questão, classifique como BLOCKER, NON_BLOCKING,
-FUTURE_GATE ou OUT_OF_SCOPE.
-FINISH > EXPAND.
-```
-
-## 43.1 Se o LLM não conseguir acessar o arquivo
-
-Estado:
-
-```text
-CONTROL_CONTEXT = UNAVAILABLE
-```
-
-Para mudanças arquiteturais, não prosseguir por memória aproximada.
-
-Solicitar/acessar a versão canônica antes de alterar decisões.
-
-Para trabalho local claramente delimitado que não altera governança, pode continuar somente se o usuário fornecer o contexto mínimo necessário.
-
----
-
-# 44. TESTE ANTI-DERIVA DO LLM
-
-Antes de aceitar qualquer proposta do LLM, aplicar:
-
-```text
-Q1: isso conclui o gate atual?
-Q2: é blocker real?
-Q3: já existe decisão congelada?
-Q4: pertence a gate futuro?
-Q5: está criando nova arquitetura?
-Q6: foi medido ou é hipótese?
-Q7: foi pedido pelo usuário?
-Q8: podemos registrar no backlog e continuar?
-```
-
-Se `Q8 = SIM`, registrar e continuar.
-
----
-
-# 45. EXEMPLOS DE COMPORTAMENTO CORRETO
-
-## Exemplo A — UWB aparece durante AUTO-01
-
-```text
-DISCOVERY: UWB poderia melhorar presença.
-ACTIVE_GATE_NEEDS_IT: NO
-CLASSIFICATION: FUTURE_GATE / POST-v1
-ACTION: REGISTER ONLY
-```
-
-## Exemplo B — BLE falha no hardware de referência
-
-```text
-DISCOVERY: hardware não suporta BLE funcional.
-ACTIVE_GATE_NEEDS_DISCOVERY: YES
-CLASSIFICATION: BLOCKER
-ACTION: resolve minimum discovery path for AUTO-01
-```
-
-## Exemplo C — Biblioteca QUIC alternativa
-
-Se a biblioteca atual atende requisitos:
-
-```text
-CLASSIFICATION: NON_BLOCKING
-ACTION: do not migrate
-```
-
-## Exemplo D — Vulnerabilidade crítica na dependência
-
-```text
-CLASSIFICATION: BLOCKER
-ACTION: remediate and recertify affected gate
-```
-
----
-
-# 46. EXEMPLOS DE COMPORTAMENTO INCORRETO
-
-Errado:
-
-```text
-"Enquanto implementamos descoberta, vamos também preparar UWB,
-CarPlay, Android Automotive e satélite."
-```
-
-Errado:
-
-```text
-"Rust está difícil aqui; vamos reescrever tudo em C++."
-```
-
-Errado:
-
-```text
-"Encontramos uma forma mais elegante, então vou reabrir três gates."
-```
-
-Errado:
-
-```text
-"Isso provavelmente passa."
-```
-
-Correto:
-
-```text
-NOT_PROVEN
-```
-
----
-
-# 47. REGRA DE RECUPERAÇÃO DE CONTEXTO
-
-Se uma sessão longa perder contexto:
-
-1. reler este arquivo;
-2. reler estado do gate;
-3. reler somente os artefatos do gate ativo;
-4. reler decisões relacionadas;
-5. continuar de `NEXT_EXACT_ACTION`.
-
-Não reler todo o histórico do projeto se não for necessário.
-
----
-
-# 48. REGRA DE COMPACTAÇÃO DE CONTEXTO
-
-Para reduzir deriva, o contexto operacional preferido é:
-
-```text
-CONTROL DOCUMENT
-+
-ACTIVE GATE SPEC
-+
-CURRENT ARTIFACTS
-+
-LATEST TEST EVIDENCE
-```
-
-Não usar milhares de mensagens antigas como fonte primária quando o repositório contém o estado canônico.
-
----
-
-# 49. REGRA DE AUTORIDADE DO REPOSITÓRIO
-
-Quando o repositório conectado e este documento divergirem de memória conversacional:
-
-```text
-REPOSITORY_CANONICAL_STATE > CONVERSATIONAL_MEMORY
-```
-
-salvo instrução explícita atual do usuário.
-
----
-
-# 50. REGRA DE NÃO-INVENÇÃO
-
-Qualquer dado ausente deve ser:
-
-```text
-UNKNOWN
-NOT_PROVEN
-NOT_APPLICABLE
-```
-
-conforme o caso.
-
-Nunca inferir:
-
-- suporte de hardware;
-- API;
-- licença;
-- desempenho;
-- compatibilidade;
-- estado de teste;
-- segurança;
-- certificação;
-- disponibilidade de feature.
-
----
-
-# 51. REGRA DE SAÍDA RÁPIDA
-
-Se o gate pode ser concluído com uma solução menor que satisfaz integralmente o requisito:
-
-```text
-USE_MINIMUM_COMPLETE_SOLUTION
-```
-
-Não escolher uma solução maior apenas por potencial futuro.
-
----
-
-# 52. REGRA DE ESCALABILIDADE
-
-Escalabilidade só bloqueia a v1 se houver requisito quantificado da v1.
-
-Futuro hipotético não pode bloquear release.
-
----
-
-# 53. REGRA DE PORTABILIDADE
-
-Portabilidade só é implementada para targets aprovados da v1.
-
-Arquitetura deve evitar lock-in desnecessário, mas não precisa implementar todos os targets antecipadamente.
-
----
-
-# 54. REGRA DE OBSERVABILIDADE
-
-Cada gate adiciona apenas a observabilidade necessária para:
-
-- provar seu funcionamento;
-- diagnosticar sua falha;
-- suportar operação segura.
-
-Construção de plataforma completa de observabilidade não pode desviar o gate.
-
----
-
-# 55. REGRA DE DOCUMENTAÇÃO
-
-Documentação acompanha implementação.
-
-Para cada componente final:
-
-- purpose;
-- inputs;
-- outputs;
-- errors;
-- security assumptions;
-- build;
-- test;
-- runtime;
-- limits.
-
-Não escrever documentação extensa de módulos que ainda não existem, salvo especificação necessária ao gate.
-
----
-
-# 56. REGRA DE API E PROTOCOLO
-
-Mudanças incompatíveis devem ser explicitamente versionadas.
-
-Nunca alterar silenciosamente formato de mensagem já congelado.
-
-Compatibilidade deve ser testada quando exigida.
-
----
-
-# 57. REGRA DE RELEASE
-
-Release candidata deve ser gerada a partir de commit identificável.
-
-Formato recomendado:
-
-```text
-v1.0.0-rc.1
-v1.0.0-rc.2
-...
-v1.0.0
-```
-
-Release final só após AUTO-18.
-
----
-
-# 58. REGRA DE ROLLBACK
-
-Mudanças de runtime/hardware capazes de impedir teste devem possuir caminho de retorno quando aplicável.
-
-Rollback não precisa ser complexo quando o artefato é substituível por reinstalação reproduzível; nesse caso, documentar reinstalação como recuperação.
-
----
-
-# 59. REGRA DE SEGREDOS
-
-Nunca armazenar em Git:
-
-- private keys;
-- API tokens;
-- passwords;
-- signing secrets;
-- certificates with private material;
-- production credentials.
-
-Documentar nomes e localização esperada, não valores secretos.
-
----
-
-# 60. REGRA DE LOGS
-
-Logs devem:
-
-- permitir diagnóstico;
-- evitar segredos;
-- possuir timestamp;
-- indicar módulo;
-- indicar severidade;
-- permitir correlação de sessão quando necessário.
-
----
-
-# 61. REGRA DE ERROS
-
-Erros devem ser:
-
-- tipados quando adequado;
-- propagados explicitamente;
-- não ignorados silenciosamente;
-- convertidos em métricas/logs quando necessário.
-
----
-
-# 62. REGRA DE PANIC/CRASH
-
-Componentes de runtime não devem depender de panic como fluxo normal.
-
-Panic deve representar invariantes quebradas ou condições realmente excepcionais, conforme política do módulo.
-
----
-
-# 63. REGRA DE CONCORRÊNCIA
-
-Não adicionar concorrência sem necessidade.
-
-Quando usada:
-
-- ownership claro;
-- cancelamento;
-- timeout;
-- shutdown;
-- backpressure;
-- race testing quando aplicável.
-
----
-
-# 64. REGRA DE REDE
-
-Protocolos devem considerar:
-
-- perda;
-- duplicação;
-- reordenação;
-- atraso;
-- desconexão;
-- reconexão;
-- versão;
-- tamanho máximo;
-- input malformado.
-
----
-
-# 65. REGRA DE CACHE
-
-Cache nunca é fonte autoritativa quando a semântica exigir origem atual.
-
-Cache deve possuir política explícita de validade.
-
----
-
-# 66. REGRA DE DADOS PESSOAIS
-
-Coletar apenas o necessário para o funcionamento aprovado.
-
-Telemetria de desenvolvimento deve evitar dados pessoais desnecessários.
-
-Qualquer expansão de coleta deve ser deliberada e documentada.
-
----
-
-# 67. REGRA DE TESTES DE VEÍCULO
-
-Durante teste em veículo:
-
-- prioridade à segurança;
-- não interagir com sistemas críticos;
-- não exigir operação visual insegura durante movimento;
-- executar cenários controlados;
-- parar teste se hardware apresentar comportamento anormal.
-
----
-
-# 68. REGRA DE EXTERNAL PLATFORM
-
-Google, Apple, OEMs e vendors são dependências externas.
-
-O núcleo TPS não deve perder independência por conveniência de integração.
-
----
-
-# 69. REGRA DE PRODUÇÃO
-
-Depois de `PRODUCTION_READY = TRUE`:
-
-1. congelar v1.0.0;
-2. criar tag;
-3. armazenar evidências;
-4. gerar as-built;
-5. abrir backlog pós-produção;
-6. somente então planejar v1.1/v2.
-
----
-
-# 70. MANIFESTO FINAL
-
-Este projeto deve ser concluído por progressão linear controlada.
-
-```text
-ONE PROJECT
-ONE ROADMAP
-ONE ACTIVE GATE
-ONE CANONICAL STATE
-ZERO UNAUTHORIZED BRANCHES
-```
-
-Sempre que surgir uma nova ideia:
-
-```text
-NEEDED_NOW?
-  |
-  +-- YES --> resolve for current gate
-  |
-  +-- NO --> backlog
-```
-
-Sempre que surgir uma decisão:
-
-```text
-DECIDE
-FREEZE
-CONTINUE
-```
-
-Sempre que faltar evidência:
-
-```text
-UNKNOWN
-```
-
-Sempre que o gate passar:
-
-```text
+NOT_STARTED
+READY
+IN_PROGRESS
+BLOCKED
+FAILED
 PASS
-FREEZE
-NEXT
+FROZEN
+UNKNOWN
+NOT_PROVEN
+NOT_EXECUTED
 ```
 
-E até a produção:
+Evitar variantes livres como:
 
 ```text
-FINISH > EXPAND
+almost done
+basically ready
+probably okay
 ```
 
 ---
 
-# 71. COMANDO OPERACIONAL PARA QUALQUER NOVA SESSÃO
+# 44. POLÍTICA DE CONCLUSÃO DO GATE
 
-Copiar junto com este arquivo, ou usar como mensagem inicial:
+Um gate só pode virar `PASS` quando existir evidência para **todos** os critérios obrigatórios.
+
+Se qualquer critério obrigatório estiver:
 
 ```text
-AUTORIDADE: TPS-AUTOLINK-PROJECT-CONTROL.md
+UNKNOWN
+NOT_PROVEN
+NOT_EXECUTED
+FAILED
+```
 
-Leia o documento canônico integralmente antes de agir.
+então:
 
-Regras obrigatórias:
-- Execute somente ACTIVE_GATE.
-- Não crie novos gates.
-- Não altere roadmap.
-- Não reabra FROZEN.
-- Não inicie FUTURE_GATE.
-- Classifique toda descoberta como BLOCKER, NON_BLOCKING,
-  FUTURE_GATE ou OUT_OF_SCOPE.
-- Sem evidência: UNKNOWN/NOT_PROVEN.
-- Código final deve ser validado antes de ser apresentado como produção.
-- Ao atingir EXIT_CRITERIA: PASS, FREEZE, NEXT.
-- Até AUTO-18: FINISH > EXPAND.
+```text
+GATE != PASS
+```
 
-Antes de responder, informe:
+---
+
+# 45. POLÍTICA DE FREEZE
+
+Depois de `PASS`:
+
+1. registrar commit;
+2. registrar evidência;
+3. registrar artefatos;
+4. atualizar documento;
+5. mudar gate para `FROZEN`;
+6. mover `ACTIVE_GATE` para o seguinte;
+7. não retornar sem causa válida.
+
+---
+
+# 46. POLÍTICA DE REGRESSÃO
+
+Todo gate posterior que alterar componente de gate anterior deve executar regressão proporcional.
+
+Falha de regressão pode reabrir decisão somente mediante evidência.
+
+---
+
+# 47. POLÍTICA DE ERRO DO LLM
+
+Se o LLM perceber que:
+
+- inventou fato;
+- misturou gates;
+- implementou requisito futuro;
+- afirmou teste não executado;
+- contradisse decisão congelada;
+
+deve:
+
+1. declarar o erro;
+2. corrigir o estado;
+3. remover conclusão inválida;
+4. retornar ao gate ativo.
+
+Não esconder inconsistência para “manter fluidez”.
+
+---
+
+# 48. POLÍTICA DE TEMPO
+
+O objetivo é reduzir **tempo de conclusão**, não maximizar atividade.
+
+O LLM deve preferir:
+
+```text
+smallest correct step
++
+clear evidence
++
+freeze
++
+next
+```
+
+em vez de:
+
+```text
+large speculative redesign
+```
+
+---
+
+# 49. POLÍTICA DE ESCALONAMENTO
+
+Escalar ao usuário somente quando for necessária decisão humana real:
+
+- custo;
+- licença;
+- hardware;
+- credencial;
+- risco;
+- mudança de requisito;
+- ação física;
+- aprovação externa;
+- operação irreversível.
+
+Não escalar decisões técnicas normais que o gate já resolve.
+
+---
+
+# 50. POLÍTICA DE CUSTO
+
+Não introduzir serviço pago, licença, hardware ou assinatura por iniciativa própria quando alternativa aprovada já resolve.
+
+Quando custo for inevitável:
+
+```text
+COST_DECISION_REQUIRED
+```
+
+e parar antes de contratação.
+
+---
+
+# 51. POLÍTICA DE LICENÇA
+
+Toda dependência incorporada deve possuir licença compatível com o modelo de distribuição pretendido.
+
+Estado permitido quando ainda não avaliado:
+
+```text
+LICENSE_REVIEW_REQUIRED
+```
+
+Não ignorar licença porque a biblioteca é tecnicamente conveniente.
+
+---
+
+# 52. POLÍTICA DE PADRÕES
+
+Usar padrão existente quando resolver o requisito melhor do que protocolo autoral.
+
+Criar protocolo próprio somente quando houver motivo objetivo.
+
+Para TPS AutoLink Protocol, documentar explicitamente o que é autoral e o que utiliza padrões existentes.
+
+---
+
+# 53. POLÍTICA DE CRIPTOGRAFIA
+
+Não criar primitivas criptográficas próprias.
+
+Utilizar bibliotecas e primitivas consolidadas.
+
+Decisões criptográficas devem considerar:
+
+- autenticação;
+- confidencialidade;
+- integridade;
+- replay;
+- forward secrecy quando aplicável;
+- rotação;
+- revogação;
+- armazenamento de chaves.
+
+---
+
+# 54. POLÍTICA DE IDENTIDADE
+
+Identidade de dispositivo deve ser separada de:
+
+- endereço IP;
+- endereço MAC;
+- nome de host;
+- nome amigável.
+
+Esses valores podem mudar e não devem ser usados automaticamente como identidade criptográfica.
+
+---
+
+# 55. POLÍTICA DE REDE
+
+Todo protocolo deve possuir:
+
+- timeout;
+- limite de retry;
+- backoff quando aplicável;
+- limite de payload;
+- limite de conexões;
+- tratamento de perda;
+- tratamento de duplicação quando aplicável;
+- versionamento.
+
+---
+
+# 56. POLÍTICA DE CACHE
+
+Antes de AUTO-10:
+
+```text
+NO_DISTRIBUTED_CACHE_PROJECT
+```
+
+É permitido apenas cache temporário mínimo necessário a gates anteriores.
+
+P2P cache regional, cache entre usuários e distribuição cooperativa são:
+
+```text
+POST_V1_OR_SEPARATE_APPROVAL
+```
+
+salvo mudança explícita de requisito.
+
+---
+
+# 57. POLÍTICA DE P2P
+
+P2P não deve aparecer como efeito colateral de outro gate.
+
+Qualquer P2P futuro deve especificar:
+
+- NAT traversal;
+- discovery;
+- relay;
+- abuso;
+- privacidade;
+- segurança;
+- accounting;
+- consentimento;
+- bateria;
+- dados móveis;
+- ISP behavior.
+
+Isso **não pertence ao roadmap atual**, salvo autorização explícita.
+
+---
+
+# 58. POLÍTICA DE TURN/RELAY
+
+TURN/relay é infraestrutura operacional e possui custo/banda.
+
+Nenhuma implementação deve ser criada durante v1.0.0 sem gate/requisito explícito.
+
+---
+
+# 59. POLÍTICA DE CARPLAY
+
+É proibido tratar CarPlay como protocolo aberto a ser clonado.
+
+Integração somente por:
+
+- programa oficial;
+- hardware autorizado quando exigido;
+- documentação/licença correspondente;
+- processo de certificação aplicável.
+
+---
+
+# 60. POLÍTICA DE ANDROID AUTO
+
+Avaliar requisitos oficiais correntes no AUTO-13.
+
+Não assumir que qualquer app pode projetar qualquer UI ou serviço arbitrário.
+
+---
+
+# 61. POLÍTICA DE ANDROID AUTOMOTIVE
+
+Android Automotive não é sinônimo de Android Auto.
+
+Tratar como plataforma distinta no adaptador correspondente.
+
+Não transformar TPS AutoLink em dependente dela.
+
+---
+
+# 62. POLÍTICA DE APPLE
+
+Integração iOS própria deve respeitar APIs e permissões oficiais.
+
+Não usar APIs privadas para evitar limitações de plataforma.
+
+---
+
+# 63. POLÍTICA DE HEAD UNIT
+
+A primeira head unit é referência de engenharia, não promessa de compatibilidade universal.
+
+Portar para hardware adicional depois que o caminho de referência estiver provado.
+
+---
+
+# 64. POLÍTICA DE DEPURAÇÃO
+
+Quando um teste falhar:
+
+1. reproduzir;
+2. preservar evidência;
+3. localizar camada;
+4. formular hipótese;
+5. testar hipótese;
+6. corrigir causa;
+7. executar regressão;
+8. atualizar evidência.
+
+Não alterar múltiplas camadas simultaneamente sem necessidade.
+
+---
+
+# 65. POLÍTICA DE ROLLBACK
+
+Mudanças operacionais e de firmware que possam impedir funcionamento devem possuir plano de rollback proporcional ao risco.
+
+Rollback não pode depender exclusivamente de “reinstalar tudo”.
+
+---
+
+# 66. POLÍTICA DE CONSTRUÇÃO
+
+Build deve registrar:
+
+```text
+RUSTC_VERSION
+CARGO_VERSION
+TARGET_TRIPLE
+PROFILE
+FEATURES
+GIT_COMMIT
+LOCKFILE_HASH
+ARTIFACT_HASH
+```
+
+Release final deve ser reproduzível ou ter variáveis não determinísticas documentadas.
+
+---
+
+# 67. POLÍTICA DE SIMULAÇÃO
+
+Mocks e simuladores devem representar interfaces, não falsificar sucesso.
+
+Exemplo:
+
+```text
+SIMULATOR_RESPONSE=PAIRING_OK
+```
+
+prova o fluxo de software contra o simulador.
+
+Não prova:
+
+```text
+REAL_PHONE_PAIRING=PASS
+```
+
+---
+
+# 68. POLÍTICA DE MÉTRICAS
+
+Ao menos para rede e mídia, registrar quando aplicável:
+
+- connect latency;
+- reconnect latency;
+- bytes;
+- retries;
+- errors;
+- buffer state;
+- underruns;
+- CPU;
+- memory.
+
+Não criar plataforma completa de observabilidade antes de ser requisito.
+
+---
+
+# 69. POLÍTICA DE DOCUMENTAÇÃO DO PROTOCOLO
+
+A especificação do TPS AutoLink Protocol deve conter progressivamente:
+
+- versão;
+- framing;
+- message types;
+- estados;
+- erros;
+- limites;
+- security properties;
+- compatibility;
+- exemplos;
+- testes de conformidade.
+
+Não documentar campos inexistentes como se já fossem implementados.
+
+---
+
+# 70. POLÍTICA DE ENCERRAMENTO DO PROJETO v1.0.0
+
+Quando AUTO-18 passar:
+
+```text
+PROJECT_PHASE = PRODUCTION
+ACTIVE_GATE = NONE
+RELEASE = v1.0.0
+PRODUCTION_READY = TRUE
+```
+
+Criar snapshot final:
+
+```text
+source
+binary
+SBOM
+docs
+test evidence
+hardware matrix
+known issues
+checksums
+rollback
+as-built
+```
+
+Somente depois iniciar melhoria.
+
+---
+
+# 71. CABEÇALHO OBRIGATÓRIO PARA O LLM
+
+Ao iniciar resposta técnica no projeto, use mentalmente:
+
+```text
+PROJECT: TPS AutoLink
+ACTIVE_GATE: <AUTO-XX>
+TARGET: <critério do gate>
+SCOPE: ACTIVE_GATE ONLY
+BLOCKERS: <list>
+```
+
+Antes de responder:
+
+```text
+IF request_required_for_active_gate:
+    execute
+ELSE IF blocking:
+    classify BLOCKER
+ELSE IF future_gate:
+    backlog
+ELSE:
+    do_not_expand_scope
+```
+
+Ao responder ao usuário, preferir começar com:
+
+```text
 PROJECT / ACTIVE_GATE / TARGET / SCOPE / BLOCKERS.
+```
 
 Ao terminar, informe:
-PROJECT / ACTIVE_GATE / STATUS / PROVEN / PENDING /
-BLOCKERS / NON_BLOCKING / FROZEN / ARTIFACTS / NEXT_EXACT_ACTION.
+
+```text
+PROJECT:
+ACTIVE_GATE:
+STATUS:
+PROVEN:
+PENDING:
+BLOCKERS:
+NON_BLOCKING:
+FROZEN:
+ARTIFACTS:
+NEXT_EXACT_ACTION:
 ```
 
 ---

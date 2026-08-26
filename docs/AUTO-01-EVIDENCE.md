@@ -28,8 +28,10 @@ The approved phone detects the approved head unit and the head unit identifies t
 
 | Item | State | Evidence |
 |---|---|---|
-| Reference phone | UNKNOWN | Not yet supplied/approved |
-| Reference head unit | UNKNOWN | Not yet supplied/approved |
+| Reference phone family | PROVEN | User identified Apple iPhone 8 Plus; Apple primary specifications recorded in `docs/hardware/REFERENCE-HARDWARE.md` |
+| Exact iPhone variant | UNKNOWN | A1864/A1897/A1898 not yet identified |
+| iPhone OS version | UNKNOWN | Must be read from Settings > General > About |
+| Reference head unit | UNKNOWN | No model/system information captured yet |
 | Hardware matrix | BLOCKED | `docs/hardware/REFERENCE-HARDWARE.md` |
 | Discovery implementation | NOT_STARTED | Blocked by AUTO01-B001 |
 | Positive discovery test | NOT_EXECUTED | Requires approved physical targets |
@@ -38,5 +40,6 @@ The approved phone detects the approved head unit and the head unit identifies t
 
 ## Blocker
 
-`AUTO01-B001` is OPEN. No discovery implementation is authorized to assume a transport
-or device capability until the required reference hardware matrix is supported by evidence.
+`AUTO01-B001` is OPEN. The phone family is now known, but AUTO-01 still cannot select or
+certify a discovery transport until the exact iOS version and discovery-relevant head-unit
+capabilities are evidenced from the physical displays or primary documentation.

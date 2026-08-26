@@ -27,4 +27,4 @@ Verification: first write commit e13ac60834fb75b1cce80cdc312467ffac7d6fcc succee
 Status: RESOLVED
 ```
 
-AUTO-00 remains `IN_PROGRESS` because build, lint, test, release-build and simulator evidence are still pending.
+At this start-transition snapshot, AUTO-00 remained `IN_PROGRESS`; final completion evidence is recorded in `AUTO-00-PASS.md`.

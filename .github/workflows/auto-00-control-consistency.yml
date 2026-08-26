@@ -1,5 +1,6 @@
 name: AUTO-00 Control Consistency Fix
 
+# One-shot corrective workflow for AUTO-00 canonical-state consistency.
 on:
   push:
     paths:

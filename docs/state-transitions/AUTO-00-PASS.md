@@ -1,0 +1,36 @@
+# State Transition — AUTO-00 PASS / FROZEN
+
+```text
+DATE: 2026-08-26
+PROJECT: TPS AutoLink
+FROM: AUTO-00 / IN_PROGRESS
+TO: AUTO-00 / PASS
+THEN: AUTO-00 / FROZEN
+NEXT: AUTO-01 / READY
+ROADMAP_CHANGE: NO
+NEW_GATE_CREATED: NO
+FROZEN_DECISION_REOPENED: NO
+```
+
+## Evidence
+
+```text
+GITHUB_REPOSITORY: marcodev10tuatelecom/TPS-AutoLink
+WORKFLOW: AUTO-00 CI
+RUN_ID: 33000440273
+JOB_ID: 98280558210
+HEAD_SHA: 34850bc0152160a621099d979e4c7e69992f7c12
+CONCLUSION: success
+TESTS: 7 passed / 0 failed
+SIMULATOR_SELF_TEST: PASS
+```
+
+The transition follows the canonical rule:
+
+```text
+PASS
+FREEZE
+NEXT_GATE
+```
+
+AUTO-01 is only `READY`; no AUTO-01 implementation is performed by this transition.

@@ -1,7 +1,7 @@
 # TPS AutoLink — Reference Hardware Matrix
 
 **Gate:** AUTO-01  
-**Status:** BLOCKED_PENDING_USER_HARDWARE  
+**Status:** BLOCKED_PENDING_REFERENCE_DETAILS  
 **Authority:** TPS-AUTOLINK-PROJECT-CONTROL.md §27
 
 AUTO-01 may not assume unproven device capabilities. The exact physical reference
@@ -10,7 +10,7 @@ phone and head unit must be recorded before discovery implementation.
 ## Canonical matrix
 
 ```text
-PHONE_MODEL: UNKNOWN
+PHONE_MODEL: Apple iPhone 8 Plus (exact model number A1864/A1897/A1898 = UNKNOWN)
 PHONE_OS: UNKNOWN
 HEAD_UNIT_MODEL: UNKNOWN
 HEAD_UNIT_OS: UNKNOWN
@@ -24,6 +24,29 @@ BLUETOOTH: UNKNOWN
 USB: UNKNOWN
 POWER: UNKNOWN
 ```
+
+## Proven phone facts from Apple primary documentation
+
+The following facts are proven for the iPhone 8 Plus family and may be used only where
+family-wide capability is sufficient:
+
+```text
+PHONE_FAMILY: Apple iPhone 8 Plus
+PHONE_CHIP: A11 Bionic
+PHONE_DISPLAY: 5.5-inch Retina HD LCD, 1920x1080
+PHONE_WIFI: 802.11ac with MIMO
+PHONE_BLUETOOTH: Bluetooth 5.0
+PHONE_CELLULAR: LTE family support; exact band/model variant remains UNKNOWN
+PHONE_CONNECTOR: Lightning
+PHONE_STORAGE_OPTIONS: 64 GB / 128 GB / 256 GB; exact unit capacity UNKNOWN
+```
+
+Primary sources:
+
+- Apple Support BR — iPhone 8 Plus technical specifications:
+  https://support.apple.com/pt-br/111950
+- Apple Support BR — Identify your iPhone model:
+  https://support.apple.com/pt-br/108044
 
 ## Evidence rule
 
@@ -46,10 +69,11 @@ reference phone and exact reference head unit.
 ```text
 BLOCKER-ID: AUTO01-B001
 GATE: AUTO-01
-DESCRIPTION: Exact approved reference phone/head-unit hardware matrix is not yet defined.
+DESCRIPTION: Exact approved reference hardware matrix is incomplete.
+EVIDENCE: Phone family identified as Apple iPhone 8 Plus; exact iOS version and exact head-unit identity/OS remain UNKNOWN.
 IMPACT: AUTO-01 physical discovery cannot be implemented or certified against an approved target.
-MINIMUM_FIX: Provide the exact phone model + OS and exact head-unit model + OS; then complete the remaining matrix fields from primary/device evidence.
-VERIFICATION: Matrix contains no required UNKNOWN field for discovery-relevant capabilities and is explicitly approved.
-OWNER: USER / physical hardware selection
+MINIMUM_FIX: Read the iPhone Software Version from Settings > General > About and capture the head-unit system/about screens visible on the display.
+VERIFICATION: Required discovery-relevant fields are supported by device/primary evidence and explicitly approved.
+OWNER: USER / physical hardware evidence
 STATUS: OPEN
 ```

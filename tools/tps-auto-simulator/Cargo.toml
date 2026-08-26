@@ -1,0 +1,15 @@
+[package]
+name = "tps-auto-simulator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish = false
+
+[[bin]]
+name = "tps-auto-simulator"
+path = "src/main.rs"
+
+[dependencies]
+tps-auto-core = { path = "../../crates/tps-auto-core" }
+tps-auto-protocol = { path = "../../crates/tps-auto-protocol" }
